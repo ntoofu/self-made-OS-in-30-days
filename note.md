@@ -7,16 +7,66 @@
     - `-nographic`
     - `-serial stdio`
 * 参考
-    - [Linux環境で行う場合の注意事項について](http://d.hatena.ne.jp/big-eyed-hamster/20081229/1230562654)
+    - [Linux環境で本書を読み進めるヒント](http://d.hatena.ne.jp/big-eyed-hamster/20081229/1230562654)
     - [FAT12のバイナリフォーマットについて](http://www.dfists.ua.es/~gil/FAT12Description.pdf)
+### Day2
+* 参考
+    - [Linux環境で本書を読み進めるヒント](http://d.hatena.ne.jp/big-eyed-hamster/20090106/1231182085)
+    - [NASMのORGについて](http://www.nasm.us/doc/nasmdoc7.html)
+    - [OpCode逆引き表](http://ref.x86asm.net/coder32.html)
 
 ## ノート
 ### アセンブリ
-* アセンブリ言語にもNASM, GASなど複数あり、構文も違う
+* アセンブリ言語にもNASM, MASM, GASなど複数あり、構文も違う
+    - NASMではアドレスオペランドに `[]` を使い、定数やレジスタにプレフィクスはいらない
+    - GASではレジスタに `%` を,定数に `$` をプレフィクスとして付け、アドレスオペランドは `()` を使う
+    - ラベルはNASMではそのままオペランドに指定してアドレスとして解釈され, GASでは `$` プレフィクスによりアドレスとして解釈できる( `$` なしではアドレスにある内容を示す)(jmpはどちらもラベルをそのまま指定でよい)
+* ORG directive
+    - NASM: プログラムの開始位置を指定 (=section内でのアドレス参照のオフセットを定める)
+    - MASM: object file内の書き込み位置指定
+* MOV: データの転送（代入）
+    - NASMでは第1オペランドが転送先, 第2オペランドが転送元でGASはその逆
+* INT: ソフトウェア割り込み
+    - BIOSに定義された関数を呼び出せる
+* HLT: 外部割り込みがあるまでCPUを停止する
+* x86のレジスタ
+    - 名前と意味
+        + AX(AH,AL): accumulator
+        + CX(CH,CL): counter
+        + DX(DH,DL): data
+        + BX(BH,BL): base
+        + SP: stack pointer
+        + BP: base pointer
+        + SI: source index
+        + DI: destination index
+        + ES: esxtrasegment
+        + CS: code segment
+        + SS: stack segment
+        + DS: data segment
+        + FS
+        + GS
+    - bit
+        + 8bit: AH, AL, ...
+        + 16bit: AX, ..., SP, ...
+        + 32bit: EAX, ..., ESP, ...
+        + 64bit: RAX, ..., RSP, ...
 
 ### ブートプロセス
 * ドライブの第1セクタ(512byte)に書き込まれたプログラム = IPL を実行
     - ブートセクタ最後2byte 0x55 0xAA かでIPLが置かれているか判断
+    - IPLはメモリ上 0x00007c00 - 0x00007dff にロードすることが決まっている
+    - 教材のOSはブートセクタ中最初の80byteがFAT12のヘッダ
+
+### x86 CPU
+* real mode (real address mode)
+    - 8086互換の動作モード
+    - GASでは `.code16` の指定でreal modeになる
+
+### リンカ
+* asmの中でラベルのアドレスを代入する部分など, 実際のアドレスはリンカによって解決される
+    - `ld hoge.o -T linker_script hoge.bin`
+    - バイナリをどうマッピングするかはリンカスクリプトで定義する
+    - `as` の出力バイナリを `readelf -s` すればシンボルとアドレスが分かる
 
 ## 疑問
 * IPLからディスプレイに画面出力される部分の仕組み
