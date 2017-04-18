@@ -39,7 +39,7 @@ putloop:                # putloop:
     cmpb $0x00, %al     # if (al == 0)
     je fin              #     goto fin;
     movb $0x0e, %ah
-    movw $0x0015, %bx
+    movw $0x000f, %bx
     int $0x10
     jmp putloop         # goto putloop;
 
