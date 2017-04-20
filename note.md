@@ -14,6 +14,9 @@
     - [Linux環境で本書を読み進めるヒント](http://d.hatena.ne.jp/big-eyed-hamster/20090106/1231182085)
     - [NASMのORGについて](http://www.nasm.us/doc/nasmdoc7.html)
     - [OpCode逆引き表](http://ref.x86asm.net/coder32.html)
+### Day3
+* 参考
+    - [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
 
 ## ノート
 ### アセンブリ
@@ -50,12 +53,16 @@
         + 16bit: AX, ..., SP, ...
         + 32bit: EAX, ..., ESP, ...
         + 64bit: RAX, ..., RSP, ...
+* segment registerには即値をMOVできない
+    - x86ではROMからsegment registerにデータ転送するパスがないため、汎用レジスタを介する必要がある
 
 ### ブートプロセス
 * ドライブの第1セクタ(512byte)に書き込まれたプログラム = IPL を実行
     - ブートセクタ最後2byte 0x55 0xAA かでIPLが置かれているか判断
     - IPLはメモリ上 0x00007c00 - 0x00007dff にロードすることが決まっている
     - 教材のOSはブートセクタ中最初の80byteがFAT12のヘッダ
+* ブート中に画面に文字を出力したりディスクを読み込むのはBIOS interrupt callのおかげ
+    - real address mode (16bitモード)でのみ動く
 
 ### x86 CPU
 * real mode (real address mode)
@@ -78,3 +85,6 @@
     - アセンブル時に解決していないアドレスは0埋めになっているようだが、リンカはシンボルに対応するアドレスをどこに差しこめばよいか(シンボルがどこでつかわれているか)をどうやって判断しているのか？
     - リンク時にアドレスを解決するのでは, メモリ上のどこにロードされるかわからないのではないか？
         + IPLについては, BIOSが0x00007c00にロードすると決まっている？
+* BIOSについて
+    - BIOSはどうやって作っているのか？M/Bのメーカーが利用しているチップセットにあわせて組み込み開発に近いことをしているのか？
+    - UEFIの場合は何がどう変わったのか？

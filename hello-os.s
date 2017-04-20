@@ -37,11 +37,24 @@ putloop:                # putloop:
     movb (%si), %al     # al = *si;
     add $0x01, %si      # ++si;
     cmpb $0x00, %al     # if (al == 0)
-    je fin              #     goto fin;
+    je loader           #     goto fin;
     movb $0x0e, %ah
     movw $0x000f, %bx
     int $0x10
     jmp putloop         # goto putloop;
+
+loader:
+    movw $0x0820, %ax
+    mov %ax, %es
+    mov $0x00, %ch      # cylinder=0
+    mov $0x00, %dh      # head=0
+    mov $0x02, %cl      # sector=2
+    mov $0x02, %ah      # operation=read disk
+    mov $0x01, %al      # num of sectors to read=1
+    mov $0x00, %bx      # buffer address=0 + %es
+    mov $0x00, %dl      # drive=0
+    int $0x13
+    jc fin
 
 fin:
     hlt
