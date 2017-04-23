@@ -51,13 +51,24 @@ loader:
     mov $0x00, %ch      # cylinder=0
     mov $0x00, %dh      # head=0
     mov $0x02, %cl      # sector=2
+readloop:
+    mov $0x0000, %si
+retry:
     mov $0x02, %ah      # operation=read disk
     mov $0x01, %al      # num of sectors to read=1
     mov $0x00, %bx      # buffer address=0 + %es
     mov $0x00, %dl      # drive=0
     int $0x13
-    jc fin
+    jnc fin
+    add $0x01, %si
+    cmp $0x05, %si
+    jae error
+    mov $0x00, %ah      # operation=reset
+    mov $0x00, %dl      # drive=0
+    int $0x13
+    jmp retry
 
+error:
 fin:
     hlt
     jmp fin

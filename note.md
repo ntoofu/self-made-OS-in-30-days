@@ -17,6 +17,7 @@
 ### Day3
 * 参考
     - [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
+    - [x86 Assembly Commands List](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow)
 
 ## ノート
 ### アセンブリ
@@ -32,6 +33,9 @@
 * INT: ソフトウェア割り込み
     - BIOSに定義された関数を呼び出せる
 * HLT: 外部割り込みがあるまでCPUを停止する
+* ADD: 加算
+    - 指定されたレジスタに指定された値を加算する
+    - GASではaddl=符号なし, adda=符号ありの加算となる
 * x86のレジスタ
     - 名前と意味
         + AX(AH,AL): accumulator
