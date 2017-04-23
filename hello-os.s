@@ -33,16 +33,18 @@ entry:
 
     movw $msg, %si      # si = msg; // char[] msg;
 
+# -- print message
 putloop:                # putloop:
     movb (%si), %al     # al = *si;
     add $0x01, %si      # ++si;
     cmpb $0x00, %al     # if (al == 0)
-    je loader           #     goto fin;
+    je loader           #     goto loader;
     movb $0x0e, %ah
     movw $0x000f, %bx
     int $0x10
     jmp putloop         # goto putloop;
 
+# -- load second sector
 loader:
     movw $0x0820, %ax
     mov %ax, %es
