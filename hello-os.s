@@ -1,4 +1,6 @@
 .code16
+.set cyls, 10
+
 # FAT12 floppy disk
 
 base:
@@ -67,6 +69,23 @@ retry:
     mov $0x00, %dl      # drive=0
     int $0x13
     jmp retry
+next:
+    mov %es, %ax
+    add $0x0020, %ax    # 1sector = 512byte = 0x200 byte = 0x20 segment
+    mov %ax, %es
+    add $0x0001, %cl    # to read the next sector
+    cmp $0x0018, %cl
+    jbe readloop
+    mov $0x0001, %cl    # sector = 1
+    add $0x0001, %dh    # head += 1
+    cmp $0x0002, %dh
+    jb readloop
+    mov $0x0000, %dh    # head = 0
+    add $0x0001, %ch    # cylinder += 1
+    cmp $cyls, %ch
+    jb readloop
+
+    jmp fin
 
 error:
 fin:
