@@ -74,7 +74,7 @@ next:
     add $0x0020, %ax    # 1sector = 512byte = 0x200 byte = 0x20 segment
     mov %ax, %es
     add $0x0001, %cl    # to read the next sector
-    cmp $0x0018, %cl
+    cmp 18, %cl
     jbe readloop
     mov $0x0001, %cl    # sector = 1
     add $0x0001, %dh    # head += 1
@@ -85,7 +85,7 @@ next:
     cmp $cyls, %ch
     jb readloop
 
-    jmp fin
+    jmp 0xc400
 
 error:
 fin:

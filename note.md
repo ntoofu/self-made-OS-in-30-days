@@ -15,6 +15,8 @@
     - [NASMのORGについて](http://www.nasm.us/doc/nasmdoc7.html)
     - [OpCode逆引き表](http://ref.x86asm.net/coder32.html)
 ### Day3
+* 0x8200 から 18 * 2 * 10 sector = 0x08200 - 0x34fff に第2セクタからの中身をロード ( 0x08000 - 0x081ff にはあとで第1セクタの中身をロード )
+    - メモリマップ上空いているとことして選定
 * 参考
     - [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
     - [x86 Assembly Commands List](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow)
