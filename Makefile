@@ -4,7 +4,7 @@ LINKER_SCRIPT=binary.ls
 all: ipl.img os-init.sys
 	gzip -cd hello-os_disk.img.gz > hello-os.img
 	dd conv=notrunc if=ipl.img of=hello-os.img bs=512 count=1
-	sudo mount -t vfat hello-os.img root/
+	sudo mount -t msdos -o loop,fat=12 hello-os.img root/
 	sudo cp os-init.sys root/
 	sudo umount root/
 
