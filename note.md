@@ -17,9 +17,17 @@
 ### Day3
 * 0x8200 から 18 * 2 * 10 sector = 0x08200 - 0x34fff に第2セクタからの中身をロード ( 0x08000 - 0x081ff にはあとで第1セクタの中身をロード )
     - メモリマップ上空いているとことして選定
+* Debug は QEMU の Monitor が使いやすい
+    - QEMUのGUIからCtrl + Alt + 2
+    - GDBで接続する方法もある
+        + `-S`, `-gdb tcp::1234` などのオプション付きでQEMU実行
+        + gdbから `target remote localhost:1234` のようにする
+    - `info register` あるいは `print $eax` などでレジスタの内容を確認したり，`x /64x 0x7c00` のようにしてメモリ上の情報を確認できる
 * 参考
     - [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
     - [x86 Assembly Commands List](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow)
+    - [QEMU Monitor](https://en.wikibooks.org/wiki/QEMU/Monitor)
+    - [Debug Linux kernel on QEMU from GDB](https://www.hiroom2.com/2014/01/15/qemu%E4%B8%8A%E3%81%AElinux%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%82%92gdb%E3%81%A7%E3%83%87%E3%83%90%E3%83%83%E3%82%B0%E3%81%99%E3%82%8B/)
 
 ## ノート
 ### アセンブリ
@@ -94,3 +102,5 @@
 * BIOSについて
     - BIOSはどうやって作っているのか？M/Bのメーカーが利用しているチップセットにあわせて組み込み開発に近いことをしているのか？
     - UEFIの場合は何がどう変わったのか？
+* デバッグテクニック関連
+    - QEMU MonitorでCtrl+PageUpなどでもスクロールバック出来ない
