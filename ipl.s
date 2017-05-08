@@ -61,7 +61,7 @@ retry:
     mov $0x00, %bx      # buffer address=0 + %es
     mov $0x00, %dl      # drive=0
     int $0x13
-    jnc fin
+    jnc next
     add $0x01, %si
     cmp $0x05, %si
     jae error
@@ -74,7 +74,7 @@ next:
     add $0x0020, %ax    # 1sector = 512byte = 0x200 byte = 0x20 segment
     mov %ax, %es
     add $0x0001, %cl    # to read the next sector
-    cmp 18, %cl
+    cmp $18, %cl
     jbe readloop
     mov $0x0001, %cl    # sector = 1
     add $0x0001, %dh    # head += 1
