@@ -23,6 +23,7 @@
         + `-S`, `-gdb tcp::1234` などのオプション付きでQEMU実行
         + gdbから `target remote localhost:1234` のようにする
     - `info register` あるいは `print $eax` などでレジスタの内容を確認したり，`x /64x 0x7c00` のようにしてメモリ上の情報を確認できる
+* 本ではディスクイメージ 0x4200 以降にファイルが書かれるとあるが、自分の環境では0x4400以降に書き込まれるようだった
 * 参考
     - [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
     - [x86 Assembly Commands List](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow)
