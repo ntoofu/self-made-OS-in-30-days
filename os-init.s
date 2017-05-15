@@ -10,6 +10,22 @@
     .set scrny, 0x0ff6
     .set vram, 0x0ff8
 
+    # Reset display mode
+    mov $0x13, %al
+    mov $0x00, %ah
+    int $0x10
+
+    # Store display setting
+    movb $8, vmode
+    movw $320, scrnx
+    movw $200, scrny
+    movl $0x000a0000, vram
+
+    # Store keyboard setting
+    mov $0x02, %ah
+    int $0x16
+    movb %al, leds
+
     # Disable PIC(Programmable Interrupt Controller)
     mov $0xff, %al
     out %al, $0x21
