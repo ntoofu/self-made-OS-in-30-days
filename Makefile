@@ -8,11 +8,18 @@ all: ipl.img os-init.img
 	sudo cp os-init.img root/os-init.sys
 	sudo umount root/
 
+os-init.sys: os-init.img bootpack.img
+	cat os-init.img bootpack.img > os-init.sys
+
 .SUFFIXES: .c .o
+.SUFFIXES: .s .o
 .SUFFIXES: .o .img
 
 .s.o:
 	as --32 $< -o $@
+
+.c.o:
+	gcc -m32 -o $@ -c $<
 
 .o.img:
 	ld $< -T $*.ls -o $@

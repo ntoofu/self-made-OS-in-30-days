@@ -24,18 +24,21 @@
         + gdbから `target remote localhost:1234` のようにする
     - `info register` あるいは `print $eax` などでレジスタの内容を確認したり，`x /64x 0x7c00` のようにしてメモリ上の情報を確認できる
 * 本ではディスクイメージ 0x4200 以降にファイルが書かれるとあるが、自分の環境では0x4400以降に書き込まれるようだった
+* 3-9における手順は、Cから直接objファイル生成->リンカスクリプトで.textセクション抽出->catで結合 とした
 * 参考
     - [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
-    - [x86 Assembly Commands List](https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow)
+    - [x86 Assembly Commands List](https://en.wikibooks.org/wiki/X86_Assembly)
     - [QEMU Monitor](https://en.wikibooks.org/wiki/QEMU/Monitor)
     - [Debug Linux kernel on QEMU from GDB](https://www.hiroom2.com/2014/01/15/qemu%E4%B8%8A%E3%81%AElinux%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%82%92gdb%E3%81%A7%E3%83%87%E3%83%90%E3%83%83%E3%82%B0%E3%81%99%E3%82%8B/)
+    - [Comparison of GAS and NASM](https://www.ibm.com/developerworks/library/l-gas-nasm/)
+    - [ELFについて](http://softwaretechnique.jp/OS_Development/Tips/ELF/elf01.html)
 
 ## ノート
 ### アセンブリ
 * アセンブリ言語にもNASM, MASM, GASなど複数あり、構文も違う
     - NASMではアドレスオペランドに `[]` を使い、定数やレジスタにプレフィクスはいらない
     - GASではレジスタに `%` を,定数に `$` をプレフィクスとして付け、アドレスオペランドは `()` を使う
-    - ラベルはNASMではそのままオペランドに指定してアドレスとして解釈され, GASでは `$` プレフィクスによりアドレスとして解釈できる( `$` なしではアドレスにある内容を示す)(jmpはどちらもラベルをそのまま指定でよい)
+    - ラベルはNASMではそのままオペランドに指定してアドレスとして解釈され, GASでは `$` プレフィクスによりアドレスを即値として解釈できる( `$` なしではアドレスにある内容を示す)(jmpはどちらもラベルをそのまま指定でよい)
 * ORG directive
     - NASM: プログラムの開始位置を指定 (=section内でのアドレス参照のオフセットを定める)
     - MASM: object file内の書き込み位置指定
@@ -47,6 +50,13 @@
 * ADD: 加算
     - 指定されたレジスタに指定された値を加算する
     - GASではaddl=符号なし, adda=符号ありの加算となる
+* OUT: レジスタの内容を指定されたI/Oポートに出力する
+* CLI: ハードウェア割り込み実行の禁止
+* CALL: サブルーチン呼び出し
+    - 次の命令アドレスをスタックにプッシュして指定したアドレスにジャンプ
+* JMP: 指定アドレスにジャンプ
+    - NASMの場合、ロングジャンプは `jmp section:offset`
+    - GASの場合、ロングジャンプは `ljmp $section, $offset`
 * x86のレジスタ
     - 名前と意味
         + AX(AH,AL): accumulator
@@ -70,6 +80,7 @@
         + 64bit: RAX, ..., RSP, ...
 * segment registerには即値をMOVできない
     - x86ではROMからsegment registerにデータ転送するパスがないため、汎用レジスタを介する必要がある
+* byte directiveなどでは即値しか取り得ないのでGASでも `$` 指定不要
 
 ### ブートプロセス
 * ドライブの第1セクタ(512byte)に書き込まれたプログラム = IPL を実行
@@ -83,8 +94,30 @@
 * real mode (real address mode)
     - 8086互換の動作モード
     - GASでは `.code16` の指定でreal modeになる
+* PIC(Programmable Interrupt Controller)
+    - エンコーダICに近く、割り込み線からの入力を割り込み番号にして送信
+    - 割り込みにマスクを掛けたりもする
 
 ### リンカ
+* コンパイル後のリンクする前のファイル=object file
+    - リロケーション情報・シンボル情報・デバッグ情報などのメタデータを含んでいる
+    - フォーマットには種類があり、LinuxのデフォルトはELF
+        + ELFはobject fileだけでなく、実行ファイルやshared object fileにも利用される
+        + 以下の部分から構成される
+            * ELF header
+                - object fileのタイプやアーキテクチャの情報などを持つ
+                - entry pointとなるアドレスも記載されている
+                - 他の部分の開始位置やエントリ数も持っている
+            * program header table
+                - object fileではoptional
+            * section/segment(複数)
+                - 命令コード, データ, シンボル情報, リロケーション情報などはそれぞれsectionに収められる
+                - 特殊なsectionとして、.bss, .data, .rodata, .text, .rel.text, ...
+            * section header table
+                - 実行ファイルではoptional
+                - object file内のすべてのsectionに対応するそれぞれのsection headerを格納する
+                - section headerはsection名(正確にはsection名のセクション文字列テーブル.shstrtab内でのインデックス)やsectionのサイズなどを持っている
+    - text segment:
 * asmの中でラベルのアドレスを代入する部分など, 実際のアドレスはリンカによって解決される
     - `ld hoge.o -T linker_script hoge.bin`
     - バイナリをどうマッピングするかはリンカスクリプトで定義する
@@ -98,6 +131,7 @@
     - *INTで呼び出している, BIOSに実装されたコードが実現している？*
 * リンカの詳細
     - アセンブル時に解決していないアドレスは0埋めになっているようだが、リンカはシンボルに対応するアドレスをどこに差しこめばよいか(シンボルがどこでつかわれているか)をどうやって判断しているのか？
+        + *object fileの.rel.textセクション内に使われている場所に関する情報がある*
     - リンク時にアドレスを解決するのでは, メモリ上のどこにロードされるかわからないのではないか？
         + IPLについては, BIOSが0x00007c00にロードすると決まっている？
 * BIOSについて
@@ -105,3 +139,4 @@
     - UEFIの場合は何がどう変わったのか？
 * デバッグテクニック関連
     - QEMU MonitorでCtrl+PageUpなどでもスクロールバック出来ない
+* 3日目9章の100行
