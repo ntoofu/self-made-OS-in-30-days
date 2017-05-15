@@ -24,3 +24,7 @@ os-init.sys: os-init.img bootpack.img
 .o.img:
 	ld $< -T $*.ls -o $@
 
+.PHONY: clean
+clean:
+	rm -f *.o
+	rm -f *.img
