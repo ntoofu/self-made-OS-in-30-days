@@ -33,6 +33,7 @@
     - [Debug Linux kernel on QEMU from GDB](https://www.hiroom2.com/2014/01/15/qemu%E4%B8%8A%E3%81%AElinux%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%82%92gdb%E3%81%A7%E3%83%87%E3%83%90%E3%83%83%E3%82%B0%E3%81%99%E3%82%8B/)
     - [Comparison of GAS and NASM](https://www.ibm.com/developerworks/library/l-gas-nasm/)
     - [ELFについて](http://softwaretechnique.jp/OS_Development/Tips/ELF/elf01.html)
+### Day4
 
 ## ノート
 ### アセンブリ
@@ -82,6 +83,9 @@
 * segment registerには即値をMOVできない
     - x86ではROMからsegment registerにデータ転送するパスがないため、汎用レジスタを介する必要がある
 * byte directiveなどでは即値しか取り得ないのでGASでも `$` 指定不要
+* C言語から呼び出す場合
+    - 4(%esp), 8(%esp), 12(%esp), ... に1,2,3,... 番目の引数が入る
+    - C言語の動作に影響させないためEAX, ECX, EDXしか変更してはいけない
 
 ### ブートプロセス
 * ドライブの第1セクタ(512byte)に書き込まれたプログラム = IPL を実行
