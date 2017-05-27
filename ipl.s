@@ -85,6 +85,7 @@ next:
     cmp $cyls, %ch
     jb readloop
 
+    mov %ch, 0x0ff0
     jmp 0xc400
 
 error:
