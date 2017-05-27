@@ -17,7 +17,7 @@
     int $0x10
 
     # Store display setting
-    movb $8, vmode
+    movw $8, vmode
     movw $320, scrnx
     movw $200, scrny
     movl $0x000a0000, vram
@@ -71,13 +71,13 @@ pipelineflush:
     # transfer bootsector
     mov $0x7c00, %esi
     mov $dskcac, %edi
-    mov 512/4, %ecx
+    mov $512/4, %ecx
     call memcpy
 
     # transfer the rest
     mov $dskcac0 + 512, %esi
     mov $dskcac + 512, %edi
-    mov 0, %ecx
+    mov $0, %ecx
     mov cyls, %cl
     imul $512*18*2/4, %ecx
     sub $512/4, %ecx
@@ -95,12 +95,14 @@ waitkbdout:
     jnz waitkbdout
     ret
 
+# subroutines(32bit)
+
 memcpy:
     mov (%esi), %eax
-    add 4, %esi
+    add $4, %esi
     mov %eax, (%edi)
-    add 4, %edi
-    sub 1, %ecx
+    add $4, %edi
+    sub $1, %ecx
     jnz memcpy
     ret
 
