@@ -1,3 +1,4 @@
+    .code16
     .set botpak, 0x00280000
     .set dskcac, 0x00100000
     .set dskcac0, 0x00008000
@@ -45,12 +46,14 @@
     call waitkbdout
 
     # turn on protect mode
+.arch i486
     lgdt gdtr0
     mov %cr0, %eax
     and $0x7fffffff, %eax
     or $0x00000001, %eax
     mov %eax, %cr0
     jmp pipelineflush
+
 pipelineflush:
     mov $1*8, %ax
     mov %ax, %ds
