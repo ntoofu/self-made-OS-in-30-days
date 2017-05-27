@@ -26,6 +26,9 @@
     - `info register` あるいは `print $eax` などでレジスタの内容を確認したり，`x /64x 0x7c00` のようにしてメモリ上の情報を確認できる
 * 本ではディスクイメージ 0x4200 以降にファイルが書かれるとあるが、自分の環境では0x4400以降に書き込まれるようだった
 * 3-9における手順は、Cから直接objファイル生成->リンカスクリプトで.textセクション抽出->catで結合 とした
+* bootpack.cの呼び出しはリンカスクリプトの工夫で簡素化 [参考](http://d.hatena.ne.jp/papamitra/20060511/1147361738)
+    - 本ではbootpack.hrbと、bootpack.cから作ったバイナリをBOOTPACKラベル以降に順につなぎ、.dataセクションについては独自にスタック領域の隣にロードして呼び出している(リンクの際にもその前提)
+    - リンカスクリプトによりbootpack.cがロードされるアドレスを基準にアドレスを解決するようにして、.dataセクションもそのままバイナリに封入
 * 参考
     - [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
     - [x86 Assembly Commands List](https://en.wikibooks.org/wiki/X86_Assembly)
@@ -86,19 +89,27 @@
 * C言語から呼び出す場合
     - 4(%esp), 8(%esp), 12(%esp), ... に1,2,3,... 番目の引数が入る
     - C言語の動作に影響させないためEAX, ECX, EDXしか変更してはいけない
+* 逆アセンブル例: `objdump -D -Matt,i386,addr16,data16 -b binary -m i386 binary-without-header.img`
+    - 16-,32-bit modeなどはaddr16, data16をいじる
 
 ### ブートプロセス
-* ドライブの第1セクタ(512byte)に書き込まれたプログラム = IPL を実行
+* 最初はBIOSがドライブの第1セクタ(512byte)に書き込まれたプログラム = IPL を実行
     - ブートセクタ最後2byte 0x55 0xAA かでIPLが置かれているか判断
     - IPLはメモリ上 0x00007c00 - 0x00007dff にロードすることが決まっている
     - 教材のOSはブートセクタ中最初の80byteがFAT12のヘッダ
+    - サイズが限定されるので、ドライブの内容をメモリにロードして実行（ジャンプ）するのが役目
 * ブート中に画面に文字を出力したりディスクを読み込むのはBIOS interrupt callのおかげ
     - real address mode (16bitモード)でのみ動く
+* IPLでブートドライブの内容(OSのイメージ含む)をメモリ上にロードし、OSのイメージの実行へジャンプ
+* IPLからジャンプして実行されるプログラムでは、主にreal modeからprotected modeなどに移行しつつ処理をCなどで書かれたOSの中心的な部分にうつす
+    - 移行の際には本来Cで考えられるような呼び出し規約をasmで実装する必要がある
 
 ### x86 CPU
 * real mode (real address mode)
     - 8086互換の動作モード
-    - GASでは `.code16` の指定でreal modeになる
+    - GASでは `.code16` の指定でreal modeの想定でアセンブルする
+    - 32-bit modeに移行する際気をつけること
+        + `.code32` directiveを適切に利用する
 * PIC(Programmable Interrupt Controller)
     - エンコーダICに近く、割り込み線からの入力を割り込み番号にして送信
     - 割り込みにマスクを掛けたりもする
@@ -127,6 +138,10 @@
     - `ld hoge.o -T linker_script hoge.bin`
     - バイナリをどうマッピングするかはリンカスクリプトで定義する
     - `as` の出力バイナリを `readelf -s` すればシンボルとアドレスが分かる
+    - アドレス解決の際に利用されるアドレス（例えば.dataセクションがどのあ
+    ドレスに存在するかなど）は、Virtual Memory Address(VMA)と呼ぶ
+    - 出力されたファイル内のアドレスはLoad Memory Address(LMA)
+    - LMAはAT属性により指定可能
 
 ## 疑問
 * IPLからディスプレイに画面出力される部分の仕組み
@@ -147,3 +162,5 @@
     - virt-managerから作成したVMで実施するとディスプレイ初期化(INT 0x10)まで到達しない上、QEMU Monitorに接続できず、gtkオプション有効のQEMUコマンドをCLIから実施した場合はそれらがうまく行く
         + 内部的に渡すコマンドラインオプションの違いが影響している？？？
 * 3日目9章の100行
+    - なぜスタックの場所が0x00310000なのか
+    - GDTの意味、内容
