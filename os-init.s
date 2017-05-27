@@ -81,18 +81,8 @@ pipelineflush:
     call memcpy
 
     # run bootpack
-    mov $botpak, %ebx
-    mov 16(%ebx), %ecx
-    add $3, %ecx
-    shr $2, %ecx
-    jz skip
-    mov 20(%ebx), %esi
-    add %ebx, %esi
-    mov 12(%ebx), %edi
-    call memcpy
-skip:
-    mov 12(%ebx), %esp
-    ljmp $2*8,$0x0000001b
+    mov $0x00310000, %esp
+    ljmp $2*8,$0x00000000
 
 # subroutines
 
