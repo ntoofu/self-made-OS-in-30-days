@@ -32,3 +32,11 @@ clean:
 	rm -f *.o
 	rm -f *.img
 	rm -f os-init.sys
+
+run:
+	sudo qemu-system-x86_64 -cpu 486 -drive file=hello-os.img,if=floppy,index=0 -monitor stdio
+
+debug:
+	sudo qemu-system-x86_64 -cpu 486 -drive file=hello-os.img,if=floppy,index=0 -S -gdb tcp::1234 &
+	sleep 1
+	gdb -ex 'target remote localhost:1234'
