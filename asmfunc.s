@@ -3,8 +3,9 @@
 .text
 
 # void io_hlt()
-.global _io_hlt
-_io_hlt:
+.global io_hlt
+.type io_hlt, @function
+io_hlt:
     hlt
     ret
 
