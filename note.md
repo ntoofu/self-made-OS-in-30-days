@@ -78,6 +78,7 @@
         + DS: data segment
         + FS
         + GS
+        + EFLAGS: flags (carry flag, interrupt flag, ...)
     - bit
         + 8bit: AH, AL, ...
         + 16bit: AX, ..., SP, ...
@@ -142,6 +143,11 @@
     ドレスに存在するかなど）は、Virtual Memory Address(VMA)と呼ぶ
     - 出力されたファイル内のアドレスはLoad Memory Address(LMA)
     - LMAはAT属性により指定可能
+
+### C言語
+* `ret` 時の EAXレジスタの内容が返り値
+* 引数は ESPレジスタで示されるスタックに入っている
+* static指定子による静的領域は `.data` セクション上にある
 
 ## 疑問
 * IPLからディスプレイに画面出力される部分の仕組み
