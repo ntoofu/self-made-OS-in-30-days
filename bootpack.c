@@ -1,8 +1,12 @@
 #include "asmfunc.h"
 #include "color.h"
 
+void init_palette();
+void set_palette();
+void boxfill8(unsigned char *vram, int vram_xsize, unsigned char color, int x0, int y0, int x1, int y1);
+
 void OsMain(void) {
-    char* p = 0xa0000;
+    char* p = (char*) 0xa0000;
 
     init_palette();
 
