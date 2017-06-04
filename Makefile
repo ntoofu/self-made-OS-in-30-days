@@ -22,7 +22,7 @@ bootpack.img: asmfunc.o bootpack.o
 	as --32 $< -o $@
 
 .c.o:
-	gcc -m32 -march=i486 -o $@ -c $<
+	gcc -m32 -march=i486 -std=c99 -o $@ -c $<
 
 .o.img:
 	ld $< -T $*.ls -o $@
