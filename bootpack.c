@@ -6,6 +6,7 @@ void init_palette();
 void set_palette();
 void boxfill8(unsigned char *vram, int vram_xsize, unsigned char color, int x0, int y0, int x1, int y1);
 void putfont8(unsigned char *vram, int vram_xsize, unsigned char color, int x, int y, unsigned char c, FONT f);
+void putstr8(unsigned char *vram, int vram_xsize, unsigned char color, int x, int y, unsigned char* c, FONT f);
 
 struct BOOTINFO {
     char cyls, leds, vmode, reserve;
@@ -27,7 +28,7 @@ void OsMain(void) {
     boxfill8(binfo->vram, binfo->scrnx, COL8_GREEN, 70, 50, 170, 120);
     boxfill8(binfo->vram, binfo->scrnx, COL8_BLUE, 120, 80, 220, 120);
 
-    putfont8(binfo->vram, binfo->scrnx, COL8_BLACK, 20, 0, 'A', FONT_OSASK);
+    putstr8(binfo->vram, binfo->scrnx, COL8_BLACK, 20, 20, "Hello World!!", FONT_OSASK);
 
     for(;;) {
         io_hlt();
@@ -99,3 +100,8 @@ void putfont8(unsigned char *vram, int vram_xsize, unsigned char color, int x, i
 }
 
 
+void putstr8(unsigned char *vram, int vram_xsize, unsigned char color, int x, int y, unsigned char* c, FONT f) {
+    for(int cx=x; *c != 0x00; ++c, cx+=8) {
+        putfont8(vram, vram_xsize, color, cx, y, *c, f);
+    }
+}
