@@ -5,18 +5,25 @@ void init_palette();
 void set_palette();
 void boxfill8(unsigned char *vram, int vram_xsize, unsigned char color, int x0, int y0, int x1, int y1);
 
+struct BOOTINFO {
+    char cyls, leds, vmode, reserve;
+    short scrnx, scrny;
+    char* vram;
+};
+
 void OsMain(void) {
-    char* p = (char*) 0xa0000;
+    struct BOOTINFO *binfo;
+    binfo = (struct BOOTINFO *) 0x0ff0;
 
     init_palette();
 
     for(int i=0x0000; i <= 0xffff; ++i){
-        p[i] = i & 0x0f;
+        (binfo->vram)[i] = i & 0x0f;
     }
 
-    boxfill8(p, 320, COL8_RED, 20, 20, 120, 120);
-    boxfill8(p, 320, COL8_GREEN, 70, 50, 170, 120);
-    boxfill8(p, 320, COL8_BLUE, 120, 80, 220, 120);
+    boxfill8(binfo->vram, binfo->scrnx, COL8_RED, 20, 20, 120, 120);
+    boxfill8(binfo->vram, binfo->scrnx, COL8_GREEN, 70, 50, 170, 120);
+    boxfill8(binfo->vram, binfo->scrnx, COL8_BLUE, 120, 80, 220, 120);
 
     for(;;) {
         io_hlt();
