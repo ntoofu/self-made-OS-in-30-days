@@ -1,6 +1,7 @@
 #include "asmfunc.h"
 #include "color.h"
 #include "font.h"
+#include "cursor.h"
 #include "lib/sprintf.h"
 
 void init_palette();
@@ -8,6 +9,8 @@ void set_palette();
 void boxfill8(unsigned char *vram, int vram_xsize, unsigned char color, int x0, int y0, int x1, int y1);
 void putfont8(unsigned char *vram, int vram_xsize, unsigned char color, int x, int y, unsigned char c, FONT f);
 void putstr8(unsigned char *vram, int vram_xsize, unsigned char color, int x, int y, unsigned char* c, FONT f);
+void init_mouse_cursor8(CURSOR_BMP bmp_buf, const CURSOR_BMP cursor_bmp, char bgcolor);
+void putbitmap8_8(char *vram, int vram_xsize, int xsize, int ysize, int x, int y, const char *bmp, int bmp_xsize);
 
 struct BOOTINFO {
     char cyls, leds, vmode, reserve;
@@ -33,6 +36,10 @@ void OsMain(void) {
     char str[40];
     sprintf(str, "scrnx = %d", binfo->scrnx);
     putstr8(binfo->vram, binfo->scrnx, COL8_BLACK, 20, 70, str, FONT_OSASK);
+
+    CURSOR_BMP cursor_bmp;
+    init_mouse_cursor8(cursor_bmp, CURSOR_DEFAULT, COL8_GREY);
+    putbitmap8_8(binfo->vram, binfo->scrnx, CURSOR_WIDTH, CURSOR_HEIGHT, 150, 80, (char*)cursor_bmp, CURSOR_WIDTH);
 
     for(;;) {
         io_hlt();
@@ -108,4 +115,35 @@ void putstr8(unsigned char *vram, int vram_xsize, unsigned char color, int x, in
     for(int cx=x; *c != 0x00; ++c, cx+=8) {
         putfont8(vram, vram_xsize, color, cx, y, *c, f);
     }
+}
+
+void init_mouse_cursor8(CURSOR_BMP bmp_buf, const CURSOR_BMP cursor_bmp, char bgcolor) {
+    char* bufp = (char*) bmp_buf;
+    for(int y=0; y<CURSOR_HEIGHT; ++y) {
+        for(int x=0; x<CURSOR_WIDTH; ++x) {
+            char pix = cursor_bmp[y][x];
+            switch(pix) {
+                case '*':
+                    *bufp = COL8_BLACK;
+                    break;
+                case 'O':
+                    *bufp = COL8_WHITE;
+                    break;
+                case ' ':
+                    *bufp = bgcolor;
+                    break;
+            }
+            ++bufp;
+        }
+    }
+    return;
+}
+
+void putbitmap8_8(char *vram, int vram_xsize, int xsize, int ysize, int x, int y, const char *bmp, int bmp_xsize) {
+    for(int y_rel=0; y_rel<ysize; ++y_rel) {
+        for(int x_rel=0; x_rel<xsize; ++x_rel) {
+            vram[(y+y_rel) * vram_xsize + (x+x_rel)] = bmp[y_rel * bmp_xsize + x_rel];
+        }
+    }
+    return;
 }
