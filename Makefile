@@ -1,5 +1,3 @@
-LINKER_SCRIPT=binary.ls
-
 .PHONY: all
 all: ipl.img os-init.sys
 	gzip -cd hello-os_disk.img.gz > hello-os.img
@@ -11,8 +9,12 @@ all: ipl.img os-init.sys
 os-init.sys: os-init.img bootpack.img
 	cat os-init.img bootpack.img > os-init.sys
 
-bootpack.img: asmfunc.o bootpack.o
-	ld bootpack.o asmfunc.o -T bootpack.ls -o $@
+bootpack.img: asmfunc.o bootpack.o lib
+	ld bootpack.o asmfunc.o lib/sprintf.o -T bootpack.ls -o $@
+
+.PHONY: lib
+lib:
+	$(MAKE) -C $@
 
 .SUFFIXES: .c .o
 .SUFFIXES: .s .o
@@ -32,6 +34,7 @@ clean:
 	rm -f *.o
 	rm -f *.img
 	rm -f os-init.sys
+	$(MAKE) clean -C lib
 
 run:
 	sudo qemu-system-x86_64 -cpu 486 -drive file=hello-os.img,if=floppy,index=0 -monitor stdio

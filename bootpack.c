@@ -1,6 +1,7 @@
 #include "asmfunc.h"
 #include "color.h"
 #include "font.h"
+#include "lib/sprintf.h"
 
 void init_palette();
 void set_palette();
@@ -29,6 +30,9 @@ void OsMain(void) {
     boxfill8(binfo->vram, binfo->scrnx, COL8_BLUE, 120, 80, 220, 120);
 
     putstr8(binfo->vram, binfo->scrnx, COL8_BLACK, 20, 20, "Hello World!!", FONT_OSASK);
+    char str[40];
+    sprintf(str, "scrnx = %d", binfo->scrnx);
+    putstr8(binfo->vram, binfo->scrnx, COL8_BLACK, 20, 70, str, FONT_OSASK);
 
     for(;;) {
         io_hlt();

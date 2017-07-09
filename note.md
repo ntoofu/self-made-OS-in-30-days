@@ -37,6 +37,12 @@
     - [Comparison of GAS and NASM](https://www.ibm.com/developerworks/library/l-gas-nasm/)
     - [ELFについて](http://softwaretechnique.jp/OS_Development/Tips/ELF/elf01.html)
 ### Day4
+### Day5
+* sprintf は自力実装
+    - variadic length argumentはcalling conventionsに気をつけ実装する
+    - 本書の呼び出し規約はasmfunc.sにて書いたようにcdeclに従う（アドレスが小さい方に延びるスタックに右の引数からpushしていく）
+* 参考
+    - [x86 calling conventions](https://en.wikipedia.org/wiki/X86_calling_conventions)
 
 ## ノート
 ### アセンブリ
@@ -114,6 +120,13 @@
 * PIC(Programmable Interrupt Controller)
     - エンコーダICに近く、割り込み線からの入力を割り込み番号にして送信
     - 割り込みにマスクを掛けたりもする
+
+### 呼び出し規約
+* 種類が複数ある（以下一例）
+    - cdecl: Linux + C で普通に使っているもの
+    - stdcall: Win32APIで利用, スタック消去が呼び出し元でなく呼び出し先の役目になっている
+    - fastcall: 最初のほうの引数をレジスタに入れ, 全てをスタックに入れはしない
+* 処理系によって16byte境界にalignさせたりすることがある
 
 ### リンカ
 * コンパイル後のリンクする前のファイル=object file
