@@ -1,17 +1,18 @@
-LIBS := sprintf.o descriptor.o
+LIBS := util/sprintf.o os/descriptor.o os/asmfunc.o
 
 .PHONY: all
 all: $(LIBS)
 
 .PHONY: test
 test: $(LIBS)
-	for test in test_*.c; do \
-		filename=$${test%.c} \
-		lib=$${filename#test_}.o \
+	for test in $$(find -type f -name 'test_*.c'); do \
+		libsrc=$${test/test_/} \
+		libobj=$${libsrc%.c}.o \
 		temp=$$(mktemp); \
 		gcc $${test} && ./a.out > $$temp; \
-		gcc -m32 -march=i486 -std=c99 $${lib} $${test} && ./a.out | diff - $$temp \
-		&& echo "$${lib}: TEST PASSED!!" >&2; \
+		gcc -m32 -march=i486 -std=c99 $${libobj} $${test} && ./a.out | diff - $$temp \
+		&& echo "$${libobj}: TEST PASSED!!" >&2; \
+		rm -f $${temp}; \
 	done
 
 .PHONY: clean
@@ -20,3 +21,7 @@ clean:
 
 .c.o:
 	gcc -m32 -march=i486 -std=c99 -fno-stack-protector -o $@ -c $<
+
+.s.o:
+	as --32 $< -o $@
+

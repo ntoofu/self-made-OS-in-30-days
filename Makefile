@@ -1,4 +1,4 @@
-LIBS := lib/sprintf.o lib/descriptor.o
+LIBS := lib/util/sprintf.o lib/os/descriptor.o lib/os/asmfunc.o
 
 .PHONY: all
 all: ipl.img os-init.sys
@@ -11,8 +11,8 @@ all: ipl.img os-init.sys
 os-init.sys: os-init.img bootpack.img
 	cat os-init.img bootpack.img > os-init.sys
 
-bootpack.img: asmfunc.o bootpack.o lib
-	ld bootpack.o asmfunc.o $(LIBS) -T bootpack.ls -o $@
+bootpack.img: bootpack.o lib
+	ld bootpack.o $(LIBS) -T bootpack.ls -o $@
 
 .PHONY: lib
 lib:

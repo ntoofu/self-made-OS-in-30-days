@@ -1,9 +1,9 @@
-#include "asmfunc.h"
-#include "color.h"
-#include "font.h"
-#include "cursor.h"
-#include "lib/descriptor.h"
-#include "lib/sprintf.h"
+#include "lib/os/asmfunc.h"
+#include "lib/graphic/color.h"
+#include "lib/graphic/font.h"
+#include "lib/graphic/cursor.h"
+#include "lib/os/descriptor.h"
+#include "lib/util/sprintf.h"
 
 void init_palette();
 void set_palette();
