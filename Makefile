@@ -1,4 +1,4 @@
-LIBS := lib/util/sprintf.o lib/os/descriptor.o lib/os/asmfunc.o
+LIBS := lib/util/sprintf.o lib/os/descriptor.o lib/os/asmfunc.o lib/graphic/display.o
 
 .PHONY: all
 all: ipl.img os-init.sys

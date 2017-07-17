@@ -1,4 +1,4 @@
-LIBS := util/sprintf.o os/descriptor.o os/asmfunc.o
+LIBS := util/sprintf.o os/descriptor.o os/asmfunc.o graphic/display.o
 
 .PHONY: all
 all: $(LIBS)
