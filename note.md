@@ -43,6 +43,7 @@
     - 本書の呼び出し規約はasmfunc.sにて書いたようにcdeclに従う（アドレスが小さい方に延びるスタックに右の引数からpushしていく）
 * 参考
     - [x86 calling conventions](https://en.wikipedia.org/wiki/X86_calling_conventions)
+    - [protected modeとGDTについて](http://softwaretechnique.jp/OS_Development/kernel_loader2.html)
 
 ## ノート
 ### アセンブリ
@@ -120,6 +121,16 @@
 * PIC(Programmable Interrupt Controller)
     - エンコーダICに近く、割り込み線からの入力を割り込み番号にして送信
     - 割り込みにマスクを掛けたりもする
+* GDT(Global segment Descripter Table)
+    - セグメント番号 と セグメント情報の対応表
+    - GDT自体はメモリ上に配置し、GDTの大きさと開始アドレスをGDTRレジスタ(48bit長)にLGDT命令で設定して使う
+    - segmentation = 物理アドレス空間を"セグメント"に分割し、実際のアドレスによらずセグメント内のアドレスでアクセスできるようにする仕組み
+        + プログラム実行時のアドレスが全く不定だとjmp命令など困ってしまうので、内部で通用するアドレスを割り当てることでプログラム側は常に0からアドレスが始まるものとして考えられる
+        + 大きさ, 開始アドレス, 管理用属性(RO/RW等)の8byteの情報をセグメントごとに持つ
+        + セグメントレジスタ16bit中下位3bitを除く13bit 8192個のセグメントを持てる
+* IDT(Interrupt Descriptor Table)
+    - 割り込みに対し呼び出す処理の対応表
+    - IDT自体はメモリ上に配置し、IDTの大きさと開始アドレスをIDTRレジスタ(48bit長)にLIDT命令で設定して使う
 
 ### 呼び出し規約
 * 種類が複数ある（以下一例）
@@ -183,4 +194,5 @@
 * 3日目9章の100行
     - なぜスタックの場所が0x00310000なのか
     - GDTの意味、内容
-* `va_list` などはcdeclをベースにしているということだが、16byte alignmentで順番がごっちゃになった場合どう処理しているのか
+* `va_list` などはcdeclをベースにしているということだが、16byte alignmentで順番がごっちゃになった場合どう処理しているのか？
+* 機能ごとにどのモード(32bit modeとか)なのか整理したいのと、64bitでは差分があるのか？

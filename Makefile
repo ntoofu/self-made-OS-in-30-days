@@ -1,3 +1,5 @@
+LIBS := lib/sprintf.o lib/descriptor.o
+
 .PHONY: all
 all: ipl.img os-init.sys
 	gzip -cd hello-os_disk.img.gz > hello-os.img
@@ -10,7 +12,7 @@ os-init.sys: os-init.img bootpack.img
 	cat os-init.img bootpack.img > os-init.sys
 
 bootpack.img: asmfunc.o bootpack.o lib
-	ld bootpack.o asmfunc.o lib/sprintf.o -T bootpack.ls -o $@
+	ld bootpack.o asmfunc.o $(LIBS) -T bootpack.ls -o $@
 
 .PHONY: lib
 lib:

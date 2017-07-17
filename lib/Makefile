@@ -1,15 +1,17 @@
-LIBS := sprintf.o
+LIBS := sprintf.o descriptor.o
 
 .PHONY: all
 all: $(LIBS)
 
 .PHONY: test
 test: $(LIBS)
-	for lib in $(LIBS); do \
+	for test in test_*.c; do \
+		filename=$${test%.c} \
+		lib=$${filename#test_}.o \
 		temp=$$(mktemp); \
-		gcc test_$${lib%.o}.c && ./a.out > $$temp; \
-		gcc -m32 -march=i486 -std=c99 $${lib} test_$${lib%.o}.c && ./a.out | diff - $$temp \
-		&& echo "TEST PASSED!!" >&2; \
+		gcc $${test} && ./a.out > $$temp; \
+		gcc -m32 -march=i486 -std=c99 $${lib} $${test} && ./a.out | diff - $$temp \
+		&& echo "$${lib}: TEST PASSED!!" >&2; \
 	done
 
 .PHONY: clean

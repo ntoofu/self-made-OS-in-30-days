@@ -2,6 +2,7 @@
 #include "color.h"
 #include "font.h"
 #include "cursor.h"
+#include "lib/descriptor.h"
 #include "lib/sprintf.h"
 
 void init_palette();
@@ -11,6 +12,8 @@ void putfont8(unsigned char *vram, int vram_xsize, unsigned char color, int x, i
 void putstr8(unsigned char *vram, int vram_xsize, unsigned char color, int x, int y, unsigned char* c, FONT f);
 void init_mouse_cursor8(CURSOR_BMP bmp_buf, const CURSOR_BMP cursor_bmp, char bgcolor);
 void putbitmap8_8(char *vram, int vram_xsize, int xsize, int ysize, int x, int y, const char *bmp, int bmp_xsize);
+void init_gdt();
+void init_idt();
 
 struct BOOTINFO {
     char cyls, leds, vmode, reserve;
@@ -147,3 +150,22 @@ void putbitmap8_8(char *vram, int vram_xsize, int xsize, int ysize, int x, int y
     }
     return;
 }
+
+void init_gdt() {
+    struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *) 0x00270000;
+    for(int i=0; i<8192; ++i) {
+        set_segmdesc(gdt+i, 0, 0, 0);
+    }
+    set_segmdesc(gdt+1, 0xffffffff, 0x00000000, 0x4092);
+    set_segmdesc(gdt+1, 0x0007ffff, 0x00280000, 0x409a);
+    load_gdtr(0xffff, 0x00270000);
+}
+
+void init_idt() {
+    struct GATE_DESCRIPTOR *idt = (struct GATE_DESCRIPTOR *) 0x0026f800;
+    for(int i=0; i<256; ++i) {
+        set_gatedesc(idt+i, 0, 0, 0);
+    }
+    load_idtr(0x07ff, 0x0026f800);
+}
+
