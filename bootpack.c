@@ -1,3 +1,4 @@
+#include "constants.h"
 #include "lib/os/asmfunc.h"
 #include "lib/graphic/color.h"
 #include "lib/graphic/font.h"
@@ -17,7 +18,7 @@ struct BOOTINFO {
 
 void OsMain(void) {
     struct BOOTINFO *binfo;
-    binfo = (struct BOOTINFO *) 0x0ff0;
+    binfo = (struct BOOTINFO *) ADR_BOOTINFO;
 
     init_palette();
 
