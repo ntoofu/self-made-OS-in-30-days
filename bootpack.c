@@ -1,24 +1,25 @@
 #include "constants.h"
-#include "lib/os/asmfunc.h"
 #include "lib/graphic/color.h"
 #include "lib/graphic/font.h"
 #include "lib/graphic/cursor.h"
 #include "lib/graphic/display.h"
+#include "lib/os/asmfunc.h"
+#include "lib/os/bootinfo.h"
 #include "lib/os/descriptor.h"
+#include "lib/os/interrupt.h"
 #include "lib/util/sprintf.h"
 
 void init_gdt();
 void init_idt();
 
-struct BOOTINFO {
-    char cyls, leds, vmode, reserve;
-    short scrnx, scrny;
-    char* vram;
-};
-
 void OsMain(void) {
     struct BOOTINFO *binfo;
     binfo = (struct BOOTINFO *) ADR_BOOTINFO;
+
+    init_gdt();
+    init_idt();
+    init_pic();
+    io_sti();
 
     init_palette();
 
@@ -39,19 +40,22 @@ void OsMain(void) {
     init_mouse_cursor8(cursor_bmp, CURSOR_DEFAULT, COL8_GREY);
     putbitmap8_8(binfo->vram, binfo->scrnx, CURSOR_WIDTH, CURSOR_HEIGHT, 150, 80, (char*)cursor_bmp, CURSOR_WIDTH);
 
+    io_out8(PIC0_IMR, 0b11111001);
+    io_out8(PIC1_IMR, 0b11101111);
+
     for(;;) {
         io_hlt();
     }
 }
 
 void init_gdt() {
-    struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *) 0x00270000;
+    struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *) ADR_GDT;
     for(int i=0; i<8192; ++i) {
         set_segmdesc(gdt+i, 0, 0, 0);
     }
-    set_segmdesc(gdt+1, 0xffffffff, 0x00000000, 0x4092);
-    set_segmdesc(gdt+1, 0x0007ffff, 0x00280000, 0x409a);
-    load_gdtr(0xffff, 0x00270000);
+    set_segmdesc(gdt + 1, 0xffffffff, 0x00000000, 0x4092);
+    set_segmdesc(gdt + 2, LIMIT_BOTPAK, ADR_BOTPAK, AR_CODE32_ER);
+    load_gdtr(LIMIT_GDT, ADR_GDT);
 }
 
 void init_idt() {
@@ -59,6 +63,8 @@ void init_idt() {
     for(int i=0; i<256; ++i) {
         set_gatedesc(idt+i, 0, 0, 0);
     }
-    load_idtr(0x07ff, 0x0026f800);
+    load_idtr(LIMIT_IDT, ADR_IDT);
+    set_gatedesc(idt + 0x21, (int) asm_int_handler_kbd, 2 << 3, AR_INTGATE32);
+    set_gatedesc(idt + 0x2c, (int) asm_int_handler_mc, 2 << 3, AR_INTGATE32);
 }
 

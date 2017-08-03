@@ -1,22 +1,23 @@
 #include "descriptor.h"
 
-void load_gdtr(int limit, int addr) {
-    __asm__ __volatile__ (
-        "mov 4(%esp), %ax   \n\t"
-        "mov %ax, 6(%esp)   \n\t"
-        "lgdt 6(%esp)       \n\t"
-    );
-    return;
-}
+// void load_gdtr(int limit, int addr)
+__asm__ (
+    ".global load_gdtr      \n\t"
+    "load_gdtr:             \n\t"
+    "    mov 4(%esp), %ax   \n\t"
+    "    mov %ax, 6(%esp)   \n\t"
+    "    lgdt 6(%esp)       \n\t"
+    "    ret                \n\t"
+);
 
-void load_idtr(int limit, int addr) {
-    __asm__ __volatile__ (
-        "mov 4(%esp), %ax   \n\t"
-        "mov %ax, 6(%esp)   \n\t"
-        "lidt 6(%esp)       \n\t"
-    );
-    return;
-}
+// void load_idtr(int limit, int addr)
+__asm__ (
+    ".global load_idtr      \n\t"
+    "load_idtr:             \n\t"
+    "   mov 4(%esp), %ax    \n\t"
+    "   mov %ax, 6(%esp)    \n\t"
+    "   lidt 6(%esp)        \n\t"
+);
 
 void set_segmdesc(struct SEGMENT_DESCRIPTOR *sd, unsigned int limit, int base, int ar) {
     if(limit > 0xffffff) {
